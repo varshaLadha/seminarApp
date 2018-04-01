@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.ouhvs.seminarapplication.Activities.ImageCompress">
+
+    <Button
+        android:id="@+id/bt_imageSelectCamera"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:onClick="selectImage"
+        android:text="Select Image From Camera"
+        android:textAllCaps="false" />
+
+    <Button
+        android:id="@+id/bt_imageSelectGallery"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/bt_imageSelectCamera"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp"
+        android:onClick="selectImage"
+        android:text="Select Image From Gallery"
+        android:textAllCaps="false" />
+
+    <ImageView
+        android:id="@+id/iv_imageContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:scaleType="fitCenter"
+        android:layout_marginTop="10dp"
+        android:layout_below="@+id/bt_imageSelectGallery"/>
+
+</RelativeLayout>

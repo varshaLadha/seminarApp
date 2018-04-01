@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "746338469299",
+    "firebase_url": "https://seminarapplication-55328.firebaseio.com",
+    "project_id": "seminarapplication-55328",
+    "storage_bucket": "seminarapplication-55328.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:746338469299:android:7aa0c435203efd4c",
+        "android_client_info": {
+          "package_name": "com.example.ouhvs.seminarapplication"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "746338469299-8f7s04l36eb894e5h85kg1d80jsugid3.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.ouhvs.seminarapplication",
+            "certificate_hash": "4da4c5340c14a8e00fd41fa4ea0b5b615deef203"
+          }
+        },
+        {
+          "client_id": "746338469299-p1jjcb24d4mi5kspd602o7v4tgisl1mi.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD55g90uCCx4lXgB-lcPRQo09tLNP9ZsOo"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "746338469299-p1jjcb24d4mi5kspd602o7v4tgisl1mi.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
