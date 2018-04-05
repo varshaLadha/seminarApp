@@ -3,6 +3,8 @@ package com.example.ouhvs.seminarapplication.Activities;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.ParcelFileDescriptor;
@@ -22,6 +24,7 @@ import java.io.Closeable;
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -30,13 +33,14 @@ import java.util.Locale;
 
 public class ImageCompress extends BaseClass {
 
-    Button btGalleryImage,btCameraImage;
-    ImageView ivImageContainer;
+    Button btGalleryImage,btCameraImage,btUpload;
+    ImageView ivImageContainer,ivCompressImageContainer;
     private static final int PICK_CAMERA_IMAGE = 2;
     private static final int PICK_GALLERY_IMAGE = 1;
-    private File destFile,file1;
+    private File destFile,file1,file;
     private Uri imageCaptureUri;
     private SimpleDateFormat dateFormatter;
+    public static final String IMAGE_DIRECTORY = "ImageScalling";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,15 +48,30 @@ public class ImageCompress extends BaseClass {
         setContentView(R.layout.activity_image_compress);
 
         initViews();
+        btUpload.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                imageCompress();
+            }
+        });
     }
 
     public void initViews()
     {
         btCameraImage=(Button)findViewById(R.id.bt_imageSelectCamera);
         btGalleryImage=(Button)findViewById(R.id.bt_imageSelectGallery);
+        btUpload=(Button)findViewById(R.id.bt_upload);
         ivImageContainer=(ImageView)findViewById(R.id.iv_imageContainer);
+        ivCompressImageContainer=(ImageView)findViewById(R.id.iv_compressImageContainer);
 
         file1=new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getAbsolutePath()+"/camera");
+        file = new File(Environment.getExternalStorageDirectory()
+                + "/" + IMAGE_DIRECTORY);
+
+        if (!file.exists()) {
+            file.mkdirs();
+        }
+
         dateFormatter = new SimpleDateFormat(
                 "yyyyMMdd_HHmmss", Locale.US);
     }
@@ -62,7 +81,6 @@ public class ImageCompress extends BaseClass {
         switch (view.getId())
         {
             case R.id.bt_imageSelectCamera:
-                //Toast.makeText(this, "Image select from camera", Toast.LENGTH_SHORT).show();
                 destFile = new File(file1, "IMG_"
                         + dateFormatter.format(new Date()).toString() + ".png");
                 imageCaptureUri = Uri.fromFile(destFile);
@@ -90,9 +108,11 @@ public class ImageCompress extends BaseClass {
                     Uri uriPhoto = data.getData();
                     ivImageContainer.setImageURI(uriPhoto);
                     destFile = new File(getPathFromGooglePhotosUri(uriPhoto));
+                    btUpload.setVisibility(View.VISIBLE);
                     break;
                 case PICK_CAMERA_IMAGE:
                     ivImageContainer.setImageURI(imageCaptureUri);
+                    btUpload.setVisibility(View.VISIBLE);
                     break;
             }
         }
@@ -141,5 +161,66 @@ public class ImageCompress extends BaseClass {
         } catch (Throwable t) {
             // Do nothing
         }
+    }
+
+    public void imageCompress(){
+        Bitmap bmp = decodeFile(destFile);
+        ivCompressImageContainer.setImageBitmap(bmp);
+    }
+
+    private Bitmap decodeFile(File f) {
+        Bitmap b = null;
+
+        //Decode image size
+        BitmapFactory.Options o = new BitmapFactory.Options();
+        o.inJustDecodeBounds = true;
+
+        FileInputStream fis = null;
+        try {
+            fis = new FileInputStream(f);
+            BitmapFactory.decodeStream(fis, null, o);
+            fis.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        int IMAGE_MAX_SIZE = 1024;
+        int scale = 1;
+        if (o.outHeight > IMAGE_MAX_SIZE || o.outWidth > IMAGE_MAX_SIZE) {
+            //Toast.makeText(this, "Hello", Toast.LENGTH_SHORT).show();
+            scale = (int) Math.pow(2, (int) Math.ceil(Math.log(IMAGE_MAX_SIZE /
+                    (double) Math.max(o.outHeight, o.outWidth)) / Math.log(0.5)));
+        }
+
+        Log.i("Scale value",scale+"");
+        //Decode with inSampleSize
+        BitmapFactory.Options o2 = new BitmapFactory.Options();
+        o2.inSampleSize = scale;
+        try {
+            fis = new FileInputStream(f);
+            b = BitmapFactory.decodeStream(fis, null, o2);
+            fis.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        //Log.d(TAG, "Width :" + b.getWidth() + " Height :" + b.getHeight());
+
+        destFile = new File(file, "img_"
+                + dateFormatter.format(new Date()).toString() + ".png");
+        try {
+            FileOutputStream out = new FileOutputStream(destFile);
+            b.compress(Bitmap.CompressFormat.PNG, 100, out);
+            out.flush();
+            out.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return b;
     }
 }
