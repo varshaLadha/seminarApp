@@ -23,8 +23,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.example.ouhvs.seminarapplication.FCM.Constants;
-import com.example.ouhvs.seminarapplication.FCM.MyNotificationManager;
 import com.example.ouhvs.seminarapplication.FCM.NotificationUtils;
 import com.example.ouhvs.seminarapplication.R;
 import com.google.firebase.messaging.FirebaseMessaging;
