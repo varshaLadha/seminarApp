@@ -66,6 +66,7 @@ public class Register extends AppCompatActivity {
                             GlobalClass.editor.commit();
                             Intent intent=new Intent(Register.this,Home.class);
                             startActivity(intent);
+                            finish();
                         }else
                         {
                             Toast.makeText(Register.this, jsonObject.getString("message"), Toast.LENGTH_SHORT).show();
