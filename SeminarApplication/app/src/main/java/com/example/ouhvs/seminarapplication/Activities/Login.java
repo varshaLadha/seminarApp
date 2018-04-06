@@ -1,6 +1,10 @@
 package com.example.ouhvs.seminarapplication.Activities;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -16,8 +20,10 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.ouhvs.seminarapplication.FCM.NotificationUtils;
 import com.example.ouhvs.seminarapplication.ModalClass.UserData;
 import com.example.ouhvs.seminarapplication.R;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.gson.Gson;
 
 import org.json.JSONException;
@@ -29,6 +35,7 @@ import java.util.Map;
 public class Login extends AppCompatActivity {
     EditText mobileno,password;
     Button login;
+    private BroadcastReceiver mRegistrationBroadcastReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,7 +43,34 @@ public class Login extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         initViews();
+        mRegistrationBroadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
 
+                if (intent.getAction().equals("registrationComplete")) {
+                    FirebaseMessaging.getInstance().subscribeToTopic("global");
+
+//                    displayFirebaseRegId();
+
+                } else if (intent.getAction().equals("pushNotification")) {
+                    // new push notification is received
+
+                    Bundle extras = intent.getExtras();
+                    if (extras != null) {
+                        String str = extras.getString("foreground");
+
+                        if (str != null) {
+                            Toast.makeText(getApplicationContext(), "Push notification: " + intent.getStringExtra("message"), Toast.LENGTH_LONG).show();
+                        }
+                    } else {
+
+                        String message = intent.getStringExtra("message");
+
+                        Toast.makeText(getApplicationContext(), "Push notification: " + message, Toast.LENGTH_LONG).show();
+                    }
+                }
+            }
+        };
         login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -99,5 +133,21 @@ public class Login extends AppCompatActivity {
             RequestQueue rq= Volley.newRequestQueue(Login.this);
             rq.add(sr);
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        LocalBroadcastManager.getInstance(this).registerReceiver(mRegistrationBroadcastReceiver,
+                new IntentFilter("registrationComplete"));
+
+        LocalBroadcastManager.getInstance(this).registerReceiver(mRegistrationBroadcastReceiver,
+                new IntentFilter("pushNotification"));
+    }
+
+    @Override
+    protected void onPause() {
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mRegistrationBroadcastReceiver);
+        super.onPause();
     }
 }

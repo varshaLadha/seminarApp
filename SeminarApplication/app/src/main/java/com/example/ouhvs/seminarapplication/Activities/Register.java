@@ -1,6 +1,10 @@
 package com.example.ouhvs.seminarapplication.Activities;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -25,6 +29,7 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.gson.Gson;
 
 public class Register extends AppCompatActivity {
@@ -32,6 +37,7 @@ public class Register extends AppCompatActivity {
     EditText uname,passwd,mno;
     String username,password,mobileno,regId;
     Button register;
+    private BroadcastReceiver mRegistrationBroadcastReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +50,35 @@ public class Register extends AppCompatActivity {
         register=(Button)findViewById(R.id.register);
 
         regId=GlobalClass.pref.getString("regId",null);
+
+        mRegistrationBroadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+
+                if (intent.getAction().equals("registrationComplete")) {
+                    FirebaseMessaging.getInstance().subscribeToTopic("global");
+
+//                    displayFirebaseRegId();
+
+                } else if (intent.getAction().equals("pushNotification")) {
+                    // new push notification is received
+
+                    Bundle extras = intent.getExtras();
+                    if (extras != null) {
+                        String str = extras.getString("foreground");
+
+                        if (str != null) {
+                            Toast.makeText(getApplicationContext(), "Push notification: " + intent.getStringExtra("message"), Toast.LENGTH_LONG).show();
+                        }
+                    } else {
+
+                        String message = intent.getStringExtra("message");
+
+                        Toast.makeText(getApplicationContext(), "Push notification: " + message, Toast.LENGTH_LONG).show();
+                    }
+                }
+            }
+        };
 
         register.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -100,5 +135,21 @@ public class Register extends AppCompatActivity {
         rq.add(sr);
             }
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        LocalBroadcastManager.getInstance(this).registerReceiver(mRegistrationBroadcastReceiver,
+                new IntentFilter("registrationComplete"));
+
+        LocalBroadcastManager.getInstance(this).registerReceiver(mRegistrationBroadcastReceiver,
+                new IntentFilter("pushNotification"));
+    }
+
+    @Override
+    protected void onPause() {
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mRegistrationBroadcastReceiver);
+        super.onPause();
     }
 }

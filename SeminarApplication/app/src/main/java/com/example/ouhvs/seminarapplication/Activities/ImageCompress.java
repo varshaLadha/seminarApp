@@ -1,14 +1,17 @@
 package com.example.ouhvs.seminarapplication.Activities;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -18,7 +21,9 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.example.ouhvs.seminarapplication.Activities.BaseClass;
+import com.example.ouhvs.seminarapplication.FCM.NotificationUtils;
 import com.example.ouhvs.seminarapplication.R;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.io.Closeable;
 import java.io.File;
@@ -41,6 +46,7 @@ public class ImageCompress extends BaseClass {
     private Uri imageCaptureUri;
     private SimpleDateFormat dateFormatter;
     public static final String IMAGE_DIRECTORY = "ImageScalling";
+    private BroadcastReceiver mRegistrationBroadcastReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,10 +60,36 @@ public class ImageCompress extends BaseClass {
                 imageCompress();
             }
         });
+
+        mRegistrationBroadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+
+                if (intent.getAction().equals("registrationComplete")) {
+                    FirebaseMessaging.getInstance().subscribeToTopic("global");
+
+                } else if (intent.getAction().equals("pushNotification")) {
+
+                    Bundle extras = intent.getExtras();
+                    if (extras != null) {
+                        String str = extras.getString("foreground");
+
+                        if (str != null) {
+                            Toast.makeText(getApplicationContext(), "Push notification: " + intent.getStringExtra("message") +" "+intent.getStringExtra("title"), Toast.LENGTH_LONG).show();
+                        }
+                    } else {
+
+                        String message = intent.getStringExtra("message");
+                        String title = intent.getStringExtra("title");
+
+                        Toast.makeText(getApplicationContext(), "Push notification: " + message +" "+title, Toast.LENGTH_LONG).show();
+                    }
+                }
+            }
+        };
     }
 
-    public void initViews()
-    {
+    public void initViews() {
         btCameraImage=(Button)findViewById(R.id.bt_imageSelectCamera);
         btGalleryImage=(Button)findViewById(R.id.bt_imageSelectGallery);
         btUpload=(Button)findViewById(R.id.bt_upload);
@@ -76,8 +108,7 @@ public class ImageCompress extends BaseClass {
                 "yyyyMMdd_HHmmss", Locale.US);
     }
 
-    public void selectImage(View view)
-    {
+    public void selectImage(View view) {
         switch (view.getId())
         {
             case R.id.bt_imageSelectCamera:
@@ -222,5 +253,23 @@ public class ImageCompress extends BaseClass {
             e.printStackTrace();
         }
         return b;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        LocalBroadcastManager.getInstance(this).registerReceiver(mRegistrationBroadcastReceiver,
+                new IntentFilter("registrationComplete"));
+
+        LocalBroadcastManager.getInstance(this).registerReceiver(mRegistrationBroadcastReceiver,
+                new IntentFilter("pushNotification"));
+
+        NotificationUtils.clearNotifications(getApplicationContext());
+    }
+
+    @Override
+    protected void onPause() {
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mRegistrationBroadcastReceiver);
+        super.onPause();
     }
 }
