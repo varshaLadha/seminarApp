@@ -42,6 +42,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     public void onMessageReceived(RemoteMessage remoteMessage) {
         super.onMessageReceived(remoteMessage);
 
+        Log.e(TAG,"Onmessagereceived");
+
+        Log.e(TAG, "onMessageReceived: "+remoteMessage.getFrom()+" : "+remoteMessage.getData() );
+
         Log.d(TAG, "From: " + remoteMessage.getFrom());
         Log.d(TAG, "Data: " + remoteMessage.getData());
 
@@ -88,7 +92,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
             // play notification sound
             NotificationUtils notificationUtils = new NotificationUtils(getApplicationContext());
-            notificationUtils.playNotificationSound();
+            //notificationUtils.playNotificationSound();
 
         }else{
             Intent pushNotification = new Intent("pushNotification");
@@ -96,7 +100,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             LocalBroadcastManager.getInstance(this).sendBroadcast(pushNotification);
 
             NotificationUtils notificationUtils = new NotificationUtils(getApplicationContext());
-            notificationUtils.playNotificationSound();
+            //notificationUtils.playNotificationSound();
             showNotificationMessage(getApplicationContext(), "New notification", message, "time", pushNotification);
         }
     }
@@ -136,7 +140,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
                 // play notification sound
                 NotificationUtils notificationUtils = new NotificationUtils(getApplicationContext());
-                notificationUtils.playNotificationSound();
+                //notificationUtils.playNotificationSound();
                 //showNotificationMessage(getApplicationContext(), "New notification", message, "time", pushNotification);
 
             } else {
@@ -223,7 +227,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             try {
                 Intent resultIntent = new Intent(getApplicationContext(), MainActivity.class);
                 resultIntent.putExtra("message", jobj.getString("message"));
-
+                resultIntent.putExtra("title",jobj.getString("title"));
                 resultIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
                 final PendingIntent resultPendingIntent =
@@ -237,7 +241,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 NotificationCompat.Builder notificationBuilder =
                         new NotificationCompat.Builder(this, ADMIN_CHANNEL_ID)
                                 .setSmallIcon(R.mipmap.ic_launcher)
-                                .setSound(alarmSound)
                                 .setStyle(inboxStyle)
                                 .setWhen(getTimeMilliSec(jobj.getString("timestamp")))
                                 .setContentTitle(jobj.getString("title"))
@@ -246,6 +249,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                                 .setContentIntent(resultPendingIntent)
                                 .setAutoCancel(true);
 
+                notifManager=getManager();
                 notifManager.notify(100, notificationBuilder.build());
             }catch (Exception e){
                 e.printStackTrace();
@@ -261,7 +265,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             Log.d("setupchannel","set up channel called foreground");
             Intent pushNotification = new Intent("pushNotification");
             pushNotification.putExtra("message", message);
-            pushNotification.putExtra("title",data.getString("title"));
             pushNotification.putExtra("foreground", "true");
             LocalBroadcastManager.getInstance(this).sendBroadcast(pushNotification);
         }
