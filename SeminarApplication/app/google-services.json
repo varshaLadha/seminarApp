@@ -1,35 +1,27 @@
 {
   "project_info": {
-    "project_number": "746338469299",
-    "firebase_url": "https://seminarapplication-55328.firebaseio.com",
-    "project_id": "seminarapplication-55328",
-    "storage_bucket": "seminarapplication-55328.appspot.com"
+    "project_number": "657794938848",
+    "firebase_url": "https://seminar-application.firebaseio.com",
+    "project_id": "seminar-application",
+    "storage_bucket": "seminar-application.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:746338469299:android:7aa0c435203efd4c",
+        "mobilesdk_app_id": "1:657794938848:android:7aa0c435203efd4c",
         "android_client_info": {
           "package_name": "com.example.ouhvs.seminarapplication"
         }
       },
       "oauth_client": [
         {
-          "client_id": "746338469299-8f7s04l36eb894e5h85kg1d80jsugid3.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.example.ouhvs.seminarapplication",
-            "certificate_hash": "4da4c5340c14a8e00fd41fa4ea0b5b615deef203"
-          }
-        },
-        {
-          "client_id": "746338469299-p1jjcb24d4mi5kspd602o7v4tgisl1mi.apps.googleusercontent.com",
+          "client_id": "657794938848-bpnb5jmfi66tvirir9l41d72vdkm7vdj.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyD55g90uCCx4lXgB-lcPRQo09tLNP9ZsOo"
+          "current_key": "AIzaSyCEKKDfFAEOYZp2AluFeuZdaf0bWoc28SU"
         }
       ],
       "services": {
@@ -37,13 +29,8 @@
           "status": 1
         },
         "appinvite_service": {
-          "status": 2,
-          "other_platform_oauth_client": [
-            {
-              "client_id": "746338469299-p1jjcb24d4mi5kspd602o7v4tgisl1mi.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
+          "status": 1,
+          "other_platform_oauth_client": []
         },
         "ads_service": {
           "status": 2

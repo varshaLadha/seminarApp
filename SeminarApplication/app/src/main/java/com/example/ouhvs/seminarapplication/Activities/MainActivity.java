@@ -25,6 +25,7 @@ import android.widget.Toast;
 
 import com.example.ouhvs.seminarapplication.FCM.NotificationUtils;
 import com.example.ouhvs.seminarapplication.R;
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.messaging.FirebaseMessaging;
 
 import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
@@ -35,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
     Button login,register;
     private static final String TAG = "MainActivity";
     private BroadcastReceiver mRegistrationBroadcastReceiver;
-    String regId;
+    String regId,token;
     private static final int PERMISSION_REQUEST_CODE=200;
 
     @Override
@@ -44,6 +45,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         onNewIntent(getIntent());
+
+        token= FirebaseInstanceId.getInstance().getToken();
+        //Toast.makeText(this, "Token = "+token, Toast.LENGTH_SHORT).show();
 
         register=(Button)findViewById(R.id.register);
         login=(Button)findViewById(R.id.login);
@@ -109,17 +113,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void displayFirebaseRegId() {
-        regId = GlobalClass.pref.getString("regId", null);
+        token= FirebaseInstanceId.getInstance().getToken();
 
-        Log.e(TAG, "Firebase reg id: " + regId);
+        Log.e(TAG, "Firebase reg id: " + token);
 
-        if (!TextUtils.isEmpty(regId)) {
-            //Toast.makeText(this, "Firebase Reg Id: " + regId+" ", Toast.LENGTH_SHORT).show();
-            Log.d("RegId", "Firebase registration Id is "+regId);
+        if (!TextUtils.isEmpty(token)) {
+            Log.d("RegId", "Firebase registration Id is "+token);
         }
         else {
             Log.e("Error", "Firebase registration Id is not received yet");
-            Toast.makeText(this, "Firebase Reg Id is not received yet!", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this, "Firebase Reg Id is not received yet!", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -147,9 +150,9 @@ public class MainActivity extends AppCompatActivity {
         Bundle bundle=intent.getExtras();
         if(bundle!=null){
             if(bundle.containsKey("message")){
-                Toast.makeText(getApplicationContext(), "Push notification: " + bundle.getString("message"), Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), "Push notification: from new intent" + bundle.getString("message"), Toast.LENGTH_LONG).show();
             }else if(bundle.containsKey("data")){
-                Toast.makeText(getApplicationContext(), "Push notification: " + bundle.getString("data payload"), Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), "Push notification: from new intent" + bundle.getString("data payload"), Toast.LENGTH_LONG).show();
             }
 
         }

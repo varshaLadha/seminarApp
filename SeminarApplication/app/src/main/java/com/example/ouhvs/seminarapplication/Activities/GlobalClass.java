@@ -1,6 +1,7 @@
 package com.example.ouhvs.seminarapplication.Activities;
 
 import android.app.Application;
+import android.content.Context;
 import android.content.SharedPreferences;
 
 public class GlobalClass extends Application{
@@ -12,7 +13,7 @@ public class GlobalClass extends Application{
     public void onCreate() {
         super.onCreate();
 
-        pref=getApplicationContext().getSharedPreferences("ah_firebase", 0);
+        pref=getApplicationContext().getSharedPreferences("ah_firebase", Context.MODE_PRIVATE);
         editor=pref.edit();
     }
 }
