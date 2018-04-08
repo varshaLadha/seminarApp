@@ -17,6 +17,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.example.ouhvs.seminarapplication.Activities.Home;
 import com.example.ouhvs.seminarapplication.Activities.MainActivity;
 import com.example.ouhvs.seminarapplication.R;
 import com.google.firebase.messaging.FirebaseMessagingService;
@@ -45,22 +46,13 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         Log.d(TAG, "From: " + remoteMessage.getFrom());
         Log.d(TAG, "Data: " + remoteMessage.getData());
 
-        //notifManager=(NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
-
-//        if(remoteMessage.getData().size() > 0){
-//            //handle the data message here
-//        }
-
-        String title = remoteMessage.getNotification().getTitle();
-        String body = remoteMessage.getNotification().getBody();
-//
         if(android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O){
             try {
                 if(remoteMessage.getData().size()>0) {
                     setupDataChannels(new JSONObject(remoteMessage.getData().toString()));
                 }
                 else {
-                    setupChannels(remoteMessage.getNotification().getBody());
+                    setupChannels(remoteMessage.getNotification().getBody(),new JSONObject(remoteMessage.getData().toString()));
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -137,6 +129,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 // app is in foreground, broadcast the push message
                 Intent pushNotification = new Intent("pushNotification");
                 pushNotification.putExtra("message", msgData);
+                pushNotification.putExtra("title",title);
                 pushNotification.putExtra("foreground","true");
                 LocalBroadcastManager.getInstance(this).sendBroadcast(pushNotification);
 
@@ -149,7 +142,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 // app is in background, show the notification in notification tray
                 Intent resultIntent = new Intent(getApplicationContext(), MainActivity.class);
                 resultIntent.putExtra("message", msgData);
-
+                resultIntent.putExtra("title",title);
                 // check for image attachment
                 if (TextUtils.isEmpty(imageUrl)) {
                     showNotificationMessage(getApplicationContext(), title, message, timestamp, resultIntent);
@@ -191,6 +184,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void setupDataChannels(JSONObject obj) throws JSONException {
+        Log.d("setupdatachannel","set up data channel called");
         JSONObject jobj = obj.getJSONObject("data");
         final Uri alarmSound = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE
                 + "://" + getApplicationContext().getPackageName() + "/raw/notification");
@@ -210,19 +204,69 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         }
 
         if(!NotificationUtils.isAppIsInBackground(getApplicationContext())){
+            Log.d("setupdatachannel","set up data channel called foreground");
             try {
                 Intent pushNotification = new Intent("pushNotification");
                 pushNotification.putExtra("message", jobj.getString("message"));
+                pushNotification.putExtra("title",jobj.getString("title"));
                 pushNotification.putExtra("foreground", "true");
+                Log.d("data",jobj.getString("message")+" "+jobj.getString("title"));
                 LocalBroadcastManager.getInstance(this).sendBroadcast(pushNotification);
             }catch (Exception e){
                 e.printStackTrace();
             }
         }
         else {
+            Log.d("setupdatachannel","set up data channel called background");
             try {
                 Intent resultIntent = new Intent(getApplicationContext(), MainActivity.class);
                 resultIntent.putExtra("message", jobj.getString("message"));
+                resultIntent.putExtra("title",jobj.getString("title"));
+                resultIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+
+                final PendingIntent resultPendingIntent =
+                        PendingIntent.getActivity(
+                                getApplicationContext(),
+                                0,
+                                resultIntent,
+                                PendingIntent.FLAG_UPDATE_CURRENT
+                        );
+
+                NotificationCompat.Builder notificationBuilder =
+                        new NotificationCompat.Builder(this, ADMIN_CHANNEL_ID)
+                                .setSmallIcon(R.mipmap.ic_launcher)
+                                .setStyle(inboxStyle)
+                                .setWhen(getTimeMilliSec(jobj.getString("timestamp")))
+                                .setContentTitle(jobj.getString("title"))
+                                .setContentText(jobj.getString("message"))
+                                .setLargeIcon(BitmapFactory.decodeResource(getApplicationContext().getResources(), icon))
+                                .setContentIntent(resultPendingIntent)
+                                .setAutoCancel(true);
+
+                notifManager=getManager();
+                notifManager.notify(100, notificationBuilder.build());
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private void setupChannels(String message,JSONObject data) throws JSONException {
+        Log.d("setupchannel","set up channel called");
+        NotificationCompat.InboxStyle inboxStyle = new NotificationCompat.InboxStyle();
+        if (!NotificationUtils.isAppIsInBackground(getApplicationContext())) {
+            Log.d("setupchannel","set up channel called foreground");
+            Intent pushNotification = new Intent("pushNotification");
+            pushNotification.putExtra("message", message);
+            pushNotification.putExtra("foreground", "true");
+            LocalBroadcastManager.getInstance(this).sendBroadcast(pushNotification);
+        }
+        else {
+            Log.d("setupchannel","set up channel called background");
+            try {
+                Intent resultIntent = new Intent(getApplicationContext(), MainActivity.class);
+                resultIntent.putExtra("message", data.getString("message"));
 
                 resultIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
@@ -237,11 +281,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 NotificationCompat.Builder notificationBuilder =
                         new NotificationCompat.Builder(this, ADMIN_CHANNEL_ID)
                                 .setSmallIcon(R.mipmap.ic_launcher)
-                                .setSound(alarmSound)
                                 .setStyle(inboxStyle)
-                                .setWhen(getTimeMilliSec(jobj.getString("timestamp")))
-                                .setContentTitle(jobj.getString("title"))
-                                .setContentText(jobj.getString("message"))
+                                .setWhen(getTimeMilliSec(data.getString("timestamp")))
+                                .setContentTitle(data.getString("title"))
+                                .setContentText(data.getString("message"))
                                 .setLargeIcon(BitmapFactory.decodeResource(getApplicationContext().getResources(), icon))
                                 .setContentIntent(resultPendingIntent)
                                 .setAutoCancel(true);
@@ -250,19 +293,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             }catch (Exception e){
                 e.printStackTrace();
             }
-        }
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    private void setupChannels(String message) throws JSONException {
-        if (!NotificationUtils.isAppIsInBackground(getApplicationContext())) {
-            Intent pushNotification = new Intent("pushNotification");
-            pushNotification.putExtra("message", message);
-            pushNotification.putExtra("foreground", "true");
-            LocalBroadcastManager.getInstance(this).sendBroadcast(pushNotification);
-        }
-        else {
-
         }
     }
 

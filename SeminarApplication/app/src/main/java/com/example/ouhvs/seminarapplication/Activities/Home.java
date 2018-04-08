@@ -43,33 +43,39 @@ public class Home extends BaseClass {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
-        initViews();
+        if(!GlobalClass.pref.contains("userDetail")){
+            Intent intent=new Intent(Home.this,MainActivity.class);
+            startActivity(intent);
+            finish();
+        }else {
+            initViews();
 
-        mRegistrationBroadcastReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
+            mRegistrationBroadcastReceiver = new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
 
-                if (intent.getAction().equals("registrationComplete")) {
-                    FirebaseMessaging.getInstance().subscribeToTopic("global");
+                    if (intent.getAction().equals("registrationComplete")) {
+                        FirebaseMessaging.getInstance().subscribeToTopic("global");
 
-                } else if (intent.getAction().equals("pushNotification")) {
+                    } else if (intent.getAction().equals("pushNotification")) {
 
-                    Bundle extras = intent.getExtras();
-                    if (extras != null) {
-                        String str = extras.getString("foreground");
+                        Bundle extras = intent.getExtras();
+                        if (extras != null) {
+                            String str = extras.getString("foreground");
 
-                        if (str != null) {
-                            Toast.makeText(getApplicationContext(), "Push notification: " + intent.getStringExtra("message"), Toast.LENGTH_LONG).show();
+                            if (str != null) {
+                                Toast.makeText(getApplicationContext(), "Push notification: " + intent.getStringExtra("message"), Toast.LENGTH_LONG).show();
+                            }
+                        } else {
+
+                            String message = intent.getStringExtra("message");
+
+                            Toast.makeText(getApplicationContext(), "Push notification: " + message, Toast.LENGTH_LONG).show();
                         }
-                    } else {
-
-                        String message = intent.getStringExtra("message");
-
-                        Toast.makeText(getApplicationContext(), "Push notification: " + message, Toast.LENGTH_LONG).show();
                     }
                 }
-            }
-        };
+            };
+        }
     }
 
     public void initViews()
@@ -96,7 +102,7 @@ public class Home extends BaseClass {
                         try {
                             JSONObject jsonObject=new JSONObject(response);
                             if(jsonObject.getInt("success")==1){
-                                Toast.makeText(Home.this, "Id updatted successfully", Toast.LENGTH_SHORT).show();
+                                //Toast.makeText(Home.this, "Id updatted successfully", Toast.LENGTH_SHORT).show();
                                 UserData userData1=new UserData(userData.getName(),userData.getPassword(),userData.getMobileno(),firebaseId);
                                 Gson gson=new Gson();
                                 String object1=gson.toJson(userData1);
