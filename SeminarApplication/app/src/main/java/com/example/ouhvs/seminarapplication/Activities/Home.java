@@ -33,7 +33,7 @@ import java.util.Map;
 public class Home extends BaseClass {
 
     Gson gson;
-    String object,firebaseId;
+    String object,firebaseId,title,message;
     UserData userData;
     TextView tvGreeting;
     private BroadcastReceiver mRegistrationBroadcastReceiver;
@@ -50,6 +50,10 @@ public class Home extends BaseClass {
         }else {
             initViews();
 
+            onNewIntent(getIntent());
+
+            Log.d("Notification content",MainActivity.title+" "+MainActivity.message);
+
             mRegistrationBroadcastReceiver = new BroadcastReceiver() {
                 @Override
                 public void onReceive(Context context, Intent intent) {
@@ -64,13 +68,14 @@ public class Home extends BaseClass {
                             String str = extras.getString("foreground");
 
                             if (str != null) {
-                                Toast.makeText(getApplicationContext(), "Push notification: " + intent.getStringExtra("message"), Toast.LENGTH_LONG).show();
+
+                                Toast.makeText(getApplicationContext(), "Push notification: home " + intent.getStringExtra("message"), Toast.LENGTH_LONG).show();
                             }
                         } else {
 
                             String message = intent.getStringExtra("message");
 
-                            Toast.makeText(getApplicationContext(), "Push notification: " + message, Toast.LENGTH_LONG).show();
+                            Toast.makeText(getApplicationContext(), "Push notification: home " + message, Toast.LENGTH_LONG).show();
                         }
                     }
                 }
@@ -139,6 +144,30 @@ public class Home extends BaseClass {
             Log.d("User data",userData.getName()+" "+userData.getMobileno()+" "+userData.getPassword()+" "+userData.getFcmId());
             Log.d("fcm id",firebaseId+"");
         }
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        Bundle bundle=intent.getExtras();
+//        String title="";
+//        if(!TextUtils.isEmpty(bundle.getString("title")));
+//        {
+//            title=bundle.getString("title");
+//        }
+        if(bundle!=null){
+            title=bundle.getString("title");
+            message=bundle.getString("message");
+
+            Log.d("Notification content",MainActivity.title+" "+MainActivity.message);
+            if(bundle.containsKey("message")){
+                Toast.makeText(getApplicationContext(), "Push notification: from new intent HOME message " + bundle.getString("message")+" "+bundle.getString("title"), Toast.LENGTH_LONG).show();
+            }else if(bundle.containsKey("data")){
+                Toast.makeText(getApplicationContext(), "Push notification: from new intent  HOME dattapayload " + bundle.getString("data payload"), Toast.LENGTH_LONG).show();
+            }
+
+        }
+
     }
 
     @Override

@@ -29,6 +29,7 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.gson.Gson;
 
@@ -49,7 +50,7 @@ public class Register extends AppCompatActivity {
         mno=(EditText)findViewById(R.id.mobileno);
         register=(Button)findViewById(R.id.register);
 
-        regId=GlobalClass.pref.getString("regId",null);
+        regId= FirebaseInstanceId.getInstance().getToken();
 
         mRegistrationBroadcastReceiver = new BroadcastReceiver() {
             @Override
@@ -128,6 +129,7 @@ public class Register extends AppCompatActivity {
                     params.put("password",password);
                     params.put("mobileno",mobileno);
                     params.put("fcmId",regId);
+                    Log.i("Data",username+" "+password+" "+mobileno+" "+regId);
                     return params;
                 }
             };
