@@ -14,16 +14,31 @@ import android.provider.MediaStore;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.example.ouhvs.seminarapplication.Activities.BaseClass;
 import com.example.ouhvs.seminarapplication.FCM.NotificationUtils;
+import com.example.ouhvs.seminarapplication.ModalClass.RecyclerAdapter;
+import com.example.ouhvs.seminarapplication.ModalClass.UserData;
 import com.example.ouhvs.seminarapplication.R;
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.gson.Gson;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.Closeable;
 import java.io.File;
@@ -32,14 +47,20 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
 public class ImageCompress extends BaseClass {
 
+    Gson gson;
+    UserData userDetail;
+    String object;
     Button btGalleryImage,btCameraImage,btUpload;
     ImageView ivImageContainer,ivCompressImageContainer;
+    RecyclerView contacts;
     private static final int PICK_CAMERA_IMAGE = 2;
     private static final int PICK_GALLERY_IMAGE = 1;
     private File destFile,file1,file;
@@ -90,11 +111,15 @@ public class ImageCompress extends BaseClass {
     }
 
     public void initViews() {
+        gson=new Gson();
+        object=GlobalClass.pref.getString("userDetail","");
+        userDetail=gson.fromJson(object,UserData.class);
         btCameraImage=(Button)findViewById(R.id.bt_imageSelectCamera);
         btGalleryImage=(Button)findViewById(R.id.bt_imageSelectGallery);
         btUpload=(Button)findViewById(R.id.bt_upload);
         ivImageContainer=(ImageView)findViewById(R.id.iv_imageContainer);
         ivCompressImageContainer=(ImageView)findViewById(R.id.iv_compressImageContainer);
+        contacts=(RecyclerView)findViewById(R.id.recyclerView);
 
         file1=new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getAbsolutePath()+"/camera");
         file = new File(Environment.getExternalStorageDirectory()
@@ -197,6 +222,49 @@ public class ImageCompress extends BaseClass {
     public void imageCompress(){
         Bitmap bmp = decodeFile(destFile);
         ivCompressImageContainer.setImageBitmap(bmp);
+        displayData();
+
+    }
+
+    public void displayData(){
+
+        final ArrayList<UserData> userData=new ArrayList<UserData>();
+        StringRequest sr=new StringRequest(Request.Method.GET, "https://lanetteamvarsha.000webhostapp.com/seminarApi/getData.php", new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                try {
+                    JSONObject jsonObject=new JSONObject(response);
+                    if(jsonObject.getInt("success")==1)
+                    {
+                        JSONArray jsonArray=jsonObject.getJSONArray("data");
+                        for(int i=0;i<jsonArray.length();i++){
+                            JSONObject jsonObject1=jsonArray.getJSONObject(i);
+                            if(!userDetail.getMobileno().equals(jsonObject1.getString("mobileNo"))) {
+                                userData.add(new UserData(jsonObject1.getString("username"), jsonObject1.getString("mobileNo"), jsonObject1.getString("fcmId")));
+                            }
+                        }
+    
+                        RecyclerAdapter adapter=new RecyclerAdapter(ImageCompress.this,userData,userDetail.getName());
+                        RecyclerView.LayoutManager layoutManager=new LinearLayoutManager(getApplicationContext());
+                        contacts.setLayoutManager(layoutManager);
+                        contacts.setAdapter(adapter);
+                    }else {
+                        Toast.makeText(ImageCompress.this, jsonObject.getString("message"), Toast.LENGTH_SHORT).show();
+                    }
+                    
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d( "onErrorResponse: ","Error occurred "+error.getMessage());
+            }
+        });
+
+        RequestQueue rq= Volley.newRequestQueue(this);
+        rq.add(sr);
     }
 
     private Bitmap decodeFile(File f) {

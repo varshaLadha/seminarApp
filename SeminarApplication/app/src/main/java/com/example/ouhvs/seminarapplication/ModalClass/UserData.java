@@ -13,6 +13,12 @@ public class UserData {
         this.fcmId=regId;
     }
 
+    public UserData(String username,String mobileno,String regId){
+        this.name=username;
+        this.mobileno=mobileno;
+        this.fcmId=regId;
+    }
+
     public void setName(String name) {
         this.name = name;
     }
