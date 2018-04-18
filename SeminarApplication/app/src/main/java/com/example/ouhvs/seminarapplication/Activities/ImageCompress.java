@@ -22,6 +22,15 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.amazonaws.auth.CognitoCachingCredentialsProvider;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
+import com.amazonaws.regions.Region;
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3Client;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -69,12 +78,20 @@ public class ImageCompress extends BaseClass {
     public static final String IMAGE_DIRECTORY = "ImageScalling";
     private BroadcastReceiver mRegistrationBroadcastReceiver;
 
+    AmazonS3 s3;
+    TransferUtility transferUtility;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_image_compress);
 
         initViews();
+
+        credentialsProvider();
+
+        setTransferUtility();
+
         btUpload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -222,6 +239,9 @@ public class ImageCompress extends BaseClass {
     public void imageCompress(){
         Bitmap bmp = decodeFile(destFile);
         ivCompressImageContainer.setImageBitmap(bmp);
+
+        setFileToUpload(ivCompressImageContainer);
+
         displayData();
 
     }
@@ -321,6 +341,66 @@ public class ImageCompress extends BaseClass {
             e.printStackTrace();
         }
         return b;
+    }
+
+    public void credentialsProvider(){
+
+        // Initialize the Amazon Cognito credentials provider
+        CognitoCachingCredentialsProvider credentialsProvider = new CognitoCachingCredentialsProvider(
+                getApplicationContext(),
+                "us-east-1:365984f3-f307-40c1-9fb3-02454e799d17", // Identity Pool ID
+                Regions.US_EAST_1 // Region
+        );
+
+        setAmazonS3Client(credentialsProvider);
+    }
+
+    public void setAmazonS3Client(CognitoCachingCredentialsProvider credentialsProvider){
+
+        // Create an S3 client
+        s3 = new AmazonS3Client(credentialsProvider);
+
+        // Set the region of your S3 bucket
+        s3.setRegion(Region.getRegion(Regions.US_EAST_1));
+    }
+
+    public void setTransferUtility(){
+
+        transferUtility = new TransferUtility(s3, getApplicationContext());
+    }
+
+    public void transferObserverListener(TransferObserver transferObserver){
+
+        transferObserver.setTransferListener(new TransferListener(){
+
+            @Override
+            public void onStateChanged(int id, TransferState state) {
+                Log.e("statechange", state+"");
+            }
+
+            @Override
+            public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
+                int percentage = (int) (bytesCurrent/bytesTotal * 100);
+                Log.e("percentage",percentage +"");
+            }
+
+            @Override
+            public void onError(int id, Exception ex) {
+                Log.e("error","error");
+            }
+
+        });
+    }
+
+    public void setFileToUpload(View view){
+
+        TransferObserver transferObserver = transferUtility.upload(
+                "varsha123",     /* The bucket to upload to */
+                destFile.getName(),    /* The key for the uploaded object */
+                destFile       /* The file where the data to upload exists */
+        );
+
+        transferObserverListener(transferObserver);
     }
 
     @Override
