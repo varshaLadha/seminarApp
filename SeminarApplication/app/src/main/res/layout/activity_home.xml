@@ -14,4 +14,12 @@
         android:layout_marginTop="20dp"
         android:textSize="30sp"
         android:textColor="@android:color/black"/>
+
+    <ImageView
+        android:id="@+id/ivReceivedImage"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_below="@+id/tv_greeting"
+        android:layout_centerHorizontal="true"
+        android:visibility="gone"/>
 </RelativeLayout>

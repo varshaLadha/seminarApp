@@ -17,6 +17,8 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.ouhvs.seminarapplication.Activities.ImageCompress;
+import com.example.ouhvs.seminarapplication.FCM.Constants;
 import com.example.ouhvs.seminarapplication.R;
 
 import org.json.JSONException;
@@ -57,7 +59,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
         holder.send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //Toast.makeText(context, userData.get(position).getFcmId(), Toast.LENGTH_SHORT).show();
+
                 StringRequest sr=new StringRequest(Request.Method.POST, "https://lanetteamvarsha.000webhostapp.com/firebaseApi/index1.php", new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
@@ -78,8 +80,8 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
                     @Override
                     protected Map<String, String> getParams() throws AuthFailureError {
                         Map<String,String> params=new HashMap<String, String>();
-                        params.put("title","Seminar application");
-                        params.put("message",senderName+" sent you an image.");
+                        params.put("title",senderName+" sent you an image.");
+                        params.put("message", Constants.S3_URL+ImageCompress.destFile.getName());
                         params.put("regId",userData.get(position).getFcmId());
                         return params;
                     }

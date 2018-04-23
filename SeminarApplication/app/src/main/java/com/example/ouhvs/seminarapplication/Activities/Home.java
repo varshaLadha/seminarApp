@@ -8,6 +8,8 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -18,11 +20,13 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.ouhvs.seminarapplication.FCM.Constants;
 import com.example.ouhvs.seminarapplication.ModalClass.UserData;
 import com.example.ouhvs.seminarapplication.R;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.gson.Gson;
+import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -36,6 +40,7 @@ public class Home extends BaseClass {
     String object,firebaseId,title,message;
     UserData userData;
     TextView tvGreeting;
+    ImageView ivReceivedImage;
     private BroadcastReceiver mRegistrationBroadcastReceiver;
 
     @Override
@@ -52,7 +57,16 @@ public class Home extends BaseClass {
 
             onNewIntent(getIntent());
 
-            Log.d("Notification content",MainActivity.title+" "+MainActivity.message);
+            if(Constants.title!=null && Constants.message!=null)
+            {
+                Toast.makeText(this, Constants.title, Toast.LENGTH_SHORT).show();
+                Picasso.with(Home.this)
+                        .load(Constants.message)
+                        .into(ivReceivedImage);
+                ivReceivedImage.setVisibility(View.VISIBLE);
+                //MainActivity.title=null;
+                //MainActivity.message=null;
+            }
 
             mRegistrationBroadcastReceiver = new BroadcastReceiver() {
                 @Override
@@ -69,13 +83,24 @@ public class Home extends BaseClass {
 
                             if (str != null) {
 
-                                Toast.makeText(getApplicationContext(), "Push notification: home " + intent.getStringExtra("message"), Toast.LENGTH_LONG).show();
+                                Constants.title=intent.getStringExtra("title");
+                                Constants.message=intent.getStringExtra("message");
+                                Toast.makeText(getApplicationContext(), Constants.title, Toast.LENGTH_LONG).show();
+
+                                Picasso.with(Home.this)
+                                        .load(Constants.message)
+                                        .into(ivReceivedImage);
+                                ivReceivedImage.setVisibility(View.VISIBLE);
                             }
                         } else {
 
-                            String message = intent.getStringExtra("message");
-
-                            Toast.makeText(getApplicationContext(), "Push notification: home " + message, Toast.LENGTH_LONG).show();
+                            Constants.title=intent.getStringExtra("title");
+                            Constants.message = intent.getStringExtra("message");
+                            Picasso.with(Home.this)
+                                    .load(Constants.message)
+                                    .into(ivReceivedImage);
+                            ivReceivedImage.setVisibility(View.VISIBLE);
+                            Toast.makeText(getApplicationContext(), Constants.title, Toast.LENGTH_LONG).show();
                         }
                     }
                 }
@@ -87,7 +112,7 @@ public class Home extends BaseClass {
     {
         firebaseId= FirebaseInstanceId.getInstance().getToken();
         tvGreeting=(TextView)findViewById(R.id.tv_greeting);
-        //Toast.makeText(this, ""+firebaseId, Toast.LENGTH_SHORT).show();
+        ivReceivedImage=(ImageView)findViewById(R.id.ivReceivedImage);
 
         if(!GlobalClass.pref.contains("userDetail")){
             Intent intent=new Intent(Home.this,MainActivity.class);
@@ -100,14 +125,14 @@ public class Home extends BaseClass {
             tvGreeting.setText("Welcome "+userData.getName());
 
             if (!userData.getFcmId().equals(firebaseId)) {
-                //Toast.makeText(this, "fid not same", Toast.LENGTH_SHORT).show();
+
                 StringRequest sr=new StringRequest(Request.Method.POST, "https://lanetteamvarsha.000webhostapp.com/seminarApi/fcmIdUpdate.php", new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
                         try {
                             JSONObject jsonObject=new JSONObject(response);
                             if(jsonObject.getInt("success")==1){
-                                //Toast.makeText(Home.this, "Id updatted successfully", Toast.LENGTH_SHORT).show();
+
                                 UserData userData1=new UserData(userData.getName(),userData.getPassword(),userData.getMobileno(),firebaseId);
                                 Gson gson=new Gson();
                                 String object1=gson.toJson(userData1);
@@ -150,18 +175,14 @@ public class Home extends BaseClass {
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         Bundle bundle=intent.getExtras();
-//        String title="";
-//        if(!TextUtils.isEmpty(bundle.getString("title")));
-//        {
-//            title=bundle.getString("title");
-//        }
-        if(bundle!=null){
-            title=bundle.getString("title");
-            message=bundle.getString("message");
 
-            Log.d("Notification content",MainActivity.title+" "+MainActivity.message);
+        if(bundle!=null){
+            Constants.title=bundle.getString("title");
+            Constants.message=bundle.getString("message");
+
+            Log.d("Notification content",Constants.title+" "+Constants.message);
             if(bundle.containsKey("message")){
-                Toast.makeText(getApplicationContext(), "Push notification: from new intent HOME message " + bundle.getString("message")+" "+bundle.getString("title"), Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(),Constants.title, Toast.LENGTH_LONG).show();
             }else if(bundle.containsKey("data")){
                 Toast.makeText(getApplicationContext(), "Push notification: from new intent  HOME dattapayload " + bundle.getString("data payload"), Toast.LENGTH_LONG).show();
             }

@@ -237,8 +237,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                                 .setSmallIcon(R.mipmap.ic_launcher)
                                 .setStyle(inboxStyle)
                                 .setWhen(getTimeMilliSec(jobj.getString("timestamp")))
-                                .setContentTitle(jobj.getString("title"))
-                                .setContentText(jobj.getString("message"))
+                                .setContentTitle("Seminar Application")
+                                .setContentText(jobj.getString("title"))
                                 .setLargeIcon(BitmapFactory.decodeResource(getApplicationContext().getResources(), icon))
                                 .setContentIntent(resultPendingIntent)
                                 .setAutoCancel(true);
@@ -284,7 +284,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                                 .setStyle(inboxStyle)
                                 .setWhen(getTimeMilliSec(data.getString("timestamp")))
                                 .setContentTitle(data.getString("title"))
-                                .setContentText(data.getString("message"))
                                 .setLargeIcon(BitmapFactory.decodeResource(getApplicationContext().getResources(), icon))
                                 .setContentIntent(resultPendingIntent)
                                 .setAutoCancel(true);

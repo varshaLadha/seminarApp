@@ -38,6 +38,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.ouhvs.seminarapplication.Activities.BaseClass;
+import com.example.ouhvs.seminarapplication.FCM.Constants;
 import com.example.ouhvs.seminarapplication.FCM.NotificationUtils;
 import com.example.ouhvs.seminarapplication.ModalClass.RecyclerAdapter;
 import com.example.ouhvs.seminarapplication.ModalClass.UserData;
@@ -72,7 +73,7 @@ public class ImageCompress extends BaseClass {
     RecyclerView contacts;
     private static final int PICK_CAMERA_IMAGE = 2;
     private static final int PICK_GALLERY_IMAGE = 1;
-    private File destFile,file1,file;
+    public static File destFile,file1,file;
     private Uri imageCaptureUri;
     private SimpleDateFormat dateFormatter;
     public static final String IMAGE_DIRECTORY = "ImageScalling";
@@ -113,14 +114,16 @@ public class ImageCompress extends BaseClass {
                         String str = extras.getString("foreground");
 
                         if (str != null) {
-                            Toast.makeText(getApplicationContext(), "Push notification: " + intent.getStringExtra("message") +" "+intent.getStringExtra("title"), Toast.LENGTH_LONG).show();
+                            Constants.title=intent.getStringExtra("title");
+                            Constants.message=intent.getStringExtra("message");
+                            Toast.makeText(getApplicationContext(), Constants.title, Toast.LENGTH_LONG).show();
                         }
                     } else {
 
-                        String message = intent.getStringExtra("message");
-                        String title = intent.getStringExtra("title");
+                        Constants.message = intent.getStringExtra("message");
+                        Constants.title = intent.getStringExtra("title");
 
-                        Toast.makeText(getApplicationContext(), "Push notification: " + message +" "+title, Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(), Constants.title , Toast.LENGTH_LONG).show();
                     }
                 }
             }
@@ -386,7 +389,7 @@ public class ImageCompress extends BaseClass {
 
             @Override
             public void onError(int id, Exception ex) {
-                Log.e("error","error");
+                Log.e("error","error "+ex.getMessage());
             }
 
         });

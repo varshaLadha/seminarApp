@@ -24,6 +24,7 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.android.volley.toolbox.StringRequest;
+import com.example.ouhvs.seminarapplication.FCM.Constants;
 import com.example.ouhvs.seminarapplication.FCM.NotificationUtils;
 import com.example.ouhvs.seminarapplication.R;
 import com.google.firebase.iid.FirebaseInstanceId;
@@ -95,16 +96,16 @@ public class MainActivity extends AppCompatActivity {
                         String str = extras.getString("foreground");
 
                         if (str != null) {
-                            message = intent.getStringExtra("message");
-                            title=intent.getStringExtra("title");
-                            Toast.makeText(getApplicationContext(), "Push notification: " + intent.getStringExtra("message"), Toast.LENGTH_LONG).show();
+                            Constants.message = intent.getStringExtra("message");
+                            Constants.title=intent.getStringExtra("title");
+                            //Toast.makeText(getApplicationContext(), Constants.title, Toast.LENGTH_LONG).show();
                         }
                     } else {
 
-                        message = intent.getStringExtra("message");
-                        title=intent.getStringExtra("title");
+                        Constants.message = intent.getStringExtra("message");
+                        Constants.title=intent.getStringExtra("title");
 
-                        Toast.makeText(getApplicationContext(), "Push notification: " + message+" "+intent.getStringExtra("title"), Toast.LENGTH_LONG).show();
+                        //Toast.makeText(getApplicationContext(), Constants.title, Toast.LENGTH_LONG).show();
                     }
                 }
             }
@@ -153,17 +154,12 @@ public class MainActivity extends AppCompatActivity {
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         Bundle bundle=intent.getExtras();
-//        String title="";
-//        if(!TextUtils.isEmpty(bundle.getString("title")));
-//        {
-//            title=bundle.getString("title");
-//        }
         if(bundle!=null){
-            title=bundle.getString("title");
-            message=bundle.getString("message");
+            Constants.title=bundle.getString("title");
+            Constants.message=bundle.getString("message");
 
             if(bundle.containsKey("message")){
-                Toast.makeText(getApplicationContext(), "Push notification: from new intent MA message " + bundle.getString("message")+" "+bundle.getString("title"), Toast.LENGTH_LONG).show();
+                //Toast.makeText(getApplicationContext(), Constants.title, Toast.LENGTH_LONG).show();
             }else if(bundle.containsKey("data")){
                 Toast.makeText(getApplicationContext(), "Push notification: from new intent  MA dattapayload " + bundle.getString("data payload"), Toast.LENGTH_LONG).show();
             }
