@@ -29,6 +29,7 @@ import org.json.JSONObject;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Random;
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
@@ -36,8 +37,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     private NotificationUtils notificationUtils;
     NotificationManager notifManager;
     private static final String ADMIN_CHANNEL_ID ="admin_channel";
-    final int icon = R.mipmap.ic_launcher;
-
+    final int icon = R.drawable.logo;
+    Random random = new Random();
+    int randInt;
+    int mNotificationId;
 
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
@@ -217,6 +220,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             }
         }
         else {
+            randInt = random.nextInt(9999 - 1000) + 1000;
+            mNotificationId = randInt;
             Log.d("setupdatachannel","set up data channel called background");
             try {
                 Intent resultIntent = new Intent(getApplicationContext(), MainActivity.class);
@@ -234,7 +239,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
                 NotificationCompat.Builder notificationBuilder =
                         new NotificationCompat.Builder(this, ADMIN_CHANNEL_ID)
-                                .setSmallIcon(R.mipmap.ic_launcher)
+                                .setSmallIcon(R.drawable.logo)
                                 .setStyle(inboxStyle)
                                 .setWhen(getTimeMilliSec(jobj.getString("timestamp")))
                                 .setContentTitle("Seminar Application")
@@ -244,7 +249,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                                 .setAutoCancel(true);
 
                 notifManager=getManager();
-                notifManager.notify(100, notificationBuilder.build());
+                notifManager.notify(mNotificationId, notificationBuilder.build());
             }catch (Exception e){
                 e.printStackTrace();
             }
@@ -253,6 +258,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void setupChannels(String message,JSONObject data) throws JSONException {
+        /*randInt = random.nextInt(9999 - 1000) + 1000;
+        mNotificationId = randInt;*/
         Log.d("setupchannel","set up channel called");
         NotificationCompat.InboxStyle inboxStyle = new NotificationCompat.InboxStyle();
         if (!NotificationUtils.isAppIsInBackground(getApplicationContext())) {
@@ -263,6 +270,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             LocalBroadcastManager.getInstance(this).sendBroadcast(pushNotification);
         }
         else {
+            randInt = random.nextInt(9999 - 1000) + 1000;
+            mNotificationId = randInt;
             Log.d("setupchannel","set up channel called background");
             try {
                 Intent resultIntent = new Intent(getApplicationContext(), MainActivity.class);
@@ -280,15 +289,16 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
                 NotificationCompat.Builder notificationBuilder =
                         new NotificationCompat.Builder(this, ADMIN_CHANNEL_ID)
-                                .setSmallIcon(R.mipmap.ic_launcher)
+                                .setSmallIcon(R.drawable.logo)
                                 .setStyle(inboxStyle)
                                 .setWhen(getTimeMilliSec(data.getString("timestamp")))
-                                .setContentTitle(data.getString("title"))
+                                .setContentTitle("Seminar Application")
+                                .setContentText(data.getString("title"))
                                 .setLargeIcon(BitmapFactory.decodeResource(getApplicationContext().getResources(), icon))
                                 .setContentIntent(resultPendingIntent)
                                 .setAutoCancel(true);
 
-                notifManager.notify(100, notificationBuilder.build());
+                notifManager.notify(mNotificationId, notificationBuilder.build());
             }catch (Exception e){
                 e.printStackTrace();
             }

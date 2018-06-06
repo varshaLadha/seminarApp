@@ -4,34 +4,76 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.ouhvs.seminarapplication.Activities.Login">
+    tools:context="com.example.ouhvs.seminarapplication.Activities.Login"
+    android:background="@drawable/bgimage">
 
-    <EditText
-        android:id="@+id/mobileno"
-        android:layout_width="250dp"
+    <LinearLayout
+        android:id="@+id/ll_mobileContainer"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
         android:layout_centerHorizontal="true"
-        android:hint="Enter mobile number"/>
+        android:layout_marginTop="50dp"
+        android:orientation="horizontal">
 
-    <EditText
-        android:id="@+id/password"
-        android:layout_width="250dp"
+        <ImageView
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/mobile"/>
+
+        <EditText
+            android:id="@+id/mobileno"
+            android:layout_width="250dp"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:layout_marginLeft="10dp"
+            android:hint="Enter mobile number"
+            android:fontFamily="cursive"
+            android:textSize="30dp"
+            android:textColor="@android:color/white"
+            android:textColorHint="@android:color/white"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_passwordContainer"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/mobileno"
-         android:layout_centerHorizontal="true"
-        android:password="true"
-        android:hint="Enter password"/>
+        android:layout_below="@+id/ll_mobileContainer"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/password"/>
+
+        <EditText
+            android:id="@+id/password"
+            android:layout_width="250dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/ll_mobileContainer"
+            android:layout_marginLeft="10dp"
+            android:textColorHint="@android:color/white"
+            android:textColor="@android:color/white"
+            android:fontFamily="cursive"
+            android:textSize="30dp"
+            android:password="true"
+            android:hint="Enter password"/>
+    </LinearLayout>
 
     <Button
         android:id="@+id/login"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/password"
+        android:layout_below="@+id/ll_passwordContainer"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="20dp"
-        android:textSize="20dp"
+        android:paddingLeft="15dp"
+        android:paddingRight="15dp"
         android:textAllCaps="false"
+        android:fontFamily="cursive"
+        android:textSize="30dp"
+        android:textColor="@android:color/white"
         android:background="@drawable/button_border"
         android:text="Login"/>
 

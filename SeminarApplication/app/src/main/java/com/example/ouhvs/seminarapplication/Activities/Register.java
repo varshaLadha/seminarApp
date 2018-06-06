@@ -4,7 +4,10 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -20,6 +23,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.ouhvs.seminarapplication.FCM.Constants;
 import com.example.ouhvs.seminarapplication.ModalClass.UserData;
 import com.example.ouhvs.seminarapplication.R;
 
@@ -39,6 +43,7 @@ public class Register extends AppCompatActivity {
     String username,password,mobileno,regId;
     Button register;
     private BroadcastReceiver mRegistrationBroadcastReceiver;
+    ActionBar ab;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +54,8 @@ public class Register extends AppCompatActivity {
         passwd=(EditText)findViewById(R.id.password);
         mno=(EditText)findViewById(R.id.mobileno);
         register=(Button)findViewById(R.id.register);
+        ab=getSupportActionBar();
+        ab.setTitle("Register");
 
         regId= FirebaseInstanceId.getInstance().getToken();
 
@@ -56,12 +63,7 @@ public class Register extends AppCompatActivity {
             @Override
             public void onReceive(Context context, Intent intent) {
 
-                if (intent.getAction().equals("registrationComplete")) {
-                    FirebaseMessaging.getInstance().subscribeToTopic("global");
-
-//                    displayFirebaseRegId();
-
-                } else if (intent.getAction().equals("pushNotification")) {
+                if (intent.getAction().equals("pushNotification")) {
                     // new push notification is received
 
                     Bundle extras = intent.getExtras();
@@ -69,14 +71,18 @@ public class Register extends AppCompatActivity {
                         String str = extras.getString("foreground");
 
                         if (str != null) {
-                            Toast.makeText(getApplicationContext(), "Push notification: " + intent.getStringExtra("message"), Toast.LENGTH_LONG).show();
+                            Constants.message = intent.getStringExtra("message");
+                            Constants.title=intent.getStringExtra("title");
+                            Toast.makeText(getApplicationContext(), Constants.title, Toast.LENGTH_LONG).show();
                         }
                     } else {
 
-                        String message = intent.getStringExtra("message");
+                        Constants.message = intent.getStringExtra("message");
+                        Constants.title=intent.getStringExtra("title");
 
-                        Toast.makeText(getApplicationContext(), "Push notification: " + message, Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(), Constants.title, Toast.LENGTH_LONG).show();
                     }
+
                 }
             }
         };
@@ -84,59 +90,68 @@ public class Register extends AppCompatActivity {
         register.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                username=uname.getText().toString().trim();
-                password=passwd.getText().toString().trim();
-                mobileno=mno.getText().toString().trim();
-
-                StringRequest sr=new StringRequest(Request.Method.POST, "https://lanetteamvarsha.000webhostapp.com/seminarApi/register.php", new Response.Listener<String>() {
-                @Override
-                public void onResponse(String response) {
-                    try {
-                        JSONObject jsonObject=new JSONObject(response);
-                        if(jsonObject.getInt("success")==1){
-                            Toast.makeText(Register.this, jsonObject.getString("message"), Toast.LENGTH_SHORT).show();
-                            UserData userData=new UserData(username,password,mobileno,regId);
-                            Gson gson=new Gson();
-                            String object=gson.toJson(userData);
-                            GlobalClass.editor.putString("userDetail",object);
-                            GlobalClass.editor.commit();
-                            Intent intent=new Intent(Register.this,Home.class);
-                            startActivity(intent);
-                            finish();
-                        }else
-                        {
-                            Toast.makeText(Register.this, jsonObject.getString("message"), Toast.LENGTH_SHORT).show();
-                            Log.i("Details ","Username "+username+" Password "+password+" MobileNo "+mobileno+" FCMID "+regId);
-                        }
-                    } catch (JSONException e) {
-                        Toast.makeText(Register.this, "Error "+e.getMessage(), Toast.LENGTH_SHORT).show();
-                        Log.e("Exception",e.getMessage());
-                    }
-
+                if(isConnectingToInternet()) {
+                    registerUser();
+                }else {
+                    Toast.makeText(Register.this, "There's no internet connection. Please turn on internet.", Toast.LENGTH_SHORT).show();
                 }
-            }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    Toast.makeText(Register.this, "Failure : "+error.getMessage(), Toast.LENGTH_SHORT).show();
-                    Log.e("Error response",error.getMessage());
-                Log.e("Stack trace",error.getStackTrace().toString());
-            }
-            }){
-                @Override
-                protected Map<String, String> getParams() throws AuthFailureError {
-                    Map<String,String> params= new HashMap<String,String>();
-                    params.put("username",username);
-                    params.put("password",password);
-                    params.put("mobileno",mobileno);
-                    params.put("fcmId",regId);
-                    Log.i("Data",username+" "+password+" "+mobileno+" "+regId);
-                    return params;
-                }
-            };
-        RequestQueue rq= Volley.newRequestQueue(Register.this);
-        rq.add(sr);
             }
         });
+    }
+
+    public void registerUser(){
+        username=uname.getText().toString().trim();
+        password=passwd.getText().toString().trim();
+        mobileno=mno.getText().toString().trim();
+
+        StringRequest sr=new StringRequest(Request.Method.POST, "https://lanetteamvarsha.000webhostapp.com/seminarApi/register.php", new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                try {
+                    JSONObject jsonObject=new JSONObject(response);
+                    if(jsonObject.getInt("success")==1){
+                        Toast.makeText(Register.this, jsonObject.getString("message"), Toast.LENGTH_SHORT).show();
+                        UserData userData=new UserData(username,password,mobileno,regId);
+                        Gson gson=new Gson();
+                        String object=gson.toJson(userData);
+                        GlobalClass.editor.putString("userDetail",object);
+                        GlobalClass.editor.commit();
+                        Intent intent=new Intent(Register.this,Home.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        startActivity(intent);
+                        finish();
+                    }else
+                    {
+                        Toast.makeText(Register.this, jsonObject.getString("message"), Toast.LENGTH_SHORT).show();
+                        Log.i("Details ","Username "+username+" Password "+password+" MobileNo "+mobileno+" FCMID "+regId);
+                    }
+                } catch (JSONException e) {
+                    Toast.makeText(Register.this, "Error "+e.getMessage(), Toast.LENGTH_SHORT).show();
+                    Log.e("Exception",e.getMessage());
+                }
+
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(Register.this, "Failure : "+error.getMessage(), Toast.LENGTH_SHORT).show();
+                Log.e("Error response",error.getMessage()+" regid "+regId);
+                Log.e("Stack trace",error.getStackTrace().toString());
+            }
+        }){
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String,String> params= new HashMap<String,String>();
+                params.put("username",username);
+                params.put("password",password);
+                params.put("mobileno",mobileno);
+                params.put("fcmId",regId);
+                Log.i("Data",username+" "+password+" "+mobileno+" "+regId);
+                return params;
+            }
+        };
+        RequestQueue rq= Volley.newRequestQueue(Register.this);
+        rq.add(sr);
     }
 
     @Override
@@ -153,5 +168,15 @@ public class Register extends AppCompatActivity {
     protected void onPause() {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mRegistrationBroadcastReceiver);
         super.onPause();
+    }
+
+    private boolean isConnectingToInternet() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager
+                .getActiveNetworkInfo();
+        if (networkInfo != null && networkInfo.isConnected())
+            return true;
+        else
+            return false;
     }
 }

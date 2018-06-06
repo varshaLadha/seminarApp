@@ -6,6 +6,12 @@
     android:layout_height="match_parent"
     tools:context="com.example.ouhvs.seminarapplication.Activities.ImageCompress">
 
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/bgimage"
+        android:scaleType="fitXY"/>
+
     <Button
         android:id="@+id/bt_imageSelectCamera"
         android:layout_width="wrap_content"
@@ -13,6 +19,12 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="20dp"
         android:onClick="selectImage"
+        android:fontFamily="cursive"
+        android:textSize="20dp"
+        android:background="@drawable/button_border"
+        android:textColor="@android:color/white"
+        android:paddingRight="10dp"
+        android:paddingLeft="10dp"
         android:text="Select Image From Camera"
         android:textAllCaps="false" />
 
@@ -24,6 +36,12 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="10dp"
         android:onClick="selectImage"
+        android:fontFamily="cursive"
+        android:textSize="20dp"
+        android:background="@drawable/button_border"
+        android:textColor="@android:color/white"
+        android:paddingRight="10dp"
+        android:paddingLeft="10dp"
         android:text="Select Image From Gallery"
         android:textAllCaps="false" />
 
@@ -59,6 +77,12 @@
         android:layout_below="@+id/ll_iviewContainer"
         android:textAllCaps="false"
         android:text="Upload file"
+        android:fontFamily="cursive"
+        android:textSize="20dp"
+        android:background="@drawable/button_border"
+        android:paddingRight="10dp"
+        android:paddingLeft="10dp"
+        android:textColor="@android:color/white"
         android:layout_centerHorizontal="true"
         android:visibility="gone"/>
 

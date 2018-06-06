@@ -3,7 +3,7 @@
     <item android:id="@+id/home"
         android:title="Home"></item>
     <item android:id="@+id/imageCompress"
-        android:title="Image Compress"></item>
+        android:title="Share Image"></item>
     <item android:id="@+id/logout"
         android:title="Logout"></item>
 </menu>

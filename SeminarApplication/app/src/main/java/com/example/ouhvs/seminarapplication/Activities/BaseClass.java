@@ -34,10 +34,12 @@ public class BaseClass extends AppCompatActivity {
             case R.id.home:
                 Intent intent=new Intent(this,Home.class);
                 startActivity(intent);
+                finish();
                 return true;
             case R.id.imageCompress:
                 Intent intent1=new Intent(this,ImageCompress.class);
                 startActivity(intent1);
+                finish();
                 return true;
             case R.id.logout:
                 GlobalClass.editor.clear();

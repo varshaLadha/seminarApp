@@ -4,43 +4,104 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.ouhvs.seminarapplication.Activities.Register">
-    
-    <EditText
-        android:id="@+id/userName"
-        android:layout_width="250dp"
+    tools:context="com.example.ouhvs.seminarapplication.Activities.Register"
+    android:background="@drawable/bgimage">
+
+    <LinearLayout
+        android:id="@+id/ll_usernameContainer"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="50dp"
-        android:hint="Enter username"/>
+        android:orientation="horizontal">
 
-    <EditText
-        android:id="@+id/password"
-        android:layout_width="250dp"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@+id/userName"
-        android:password="true"
-        android:hint="Enter password"/>
+        <ImageView
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/user"/>
 
-    <EditText
-        android:id="@+id/mobileno"
-        android:layout_width="250dp"
+        <EditText
+            android:id="@+id/userName"
+            android:layout_width="250dp"
+            android:layout_height="wrap_content"
+            android:inputType="textCapCharacters"
+            android:textColor="@android:color/white"
+            android:textColorHint="@android:color/white"
+            android:layout_marginLeft="10dp"
+            android:fontFamily="cursive"
+            android:textSize="30dp"
+            android:hint="Enter username"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_passwordContainer"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="10dp"
         android:layout_centerHorizontal="true"
-        android:layout_below="@+id/password"
-        android:hint="Enter mobile number"/>
+        android:layout_below="@+id/ll_usernameContainer">
+
+        <ImageView
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/password"/>
+
+        <EditText
+            android:id="@+id/password"
+            android:layout_width="250dp"
+            android:layout_height="wrap_content"
+            android:password="true"
+            android:textColor="@android:color/white"
+            android:textColorHint="@android:color/white"
+            android:layout_marginLeft="10dp"
+            android:fontFamily="cursive"
+            android:textSize="30dp"
+            android:hint="Enter password"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_mobileContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:orientation="horizontal"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/ll_passwordContainer">
+
+        <ImageView
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/mobile"/>
+
+        <EditText
+            android:id="@+id/mobileno"
+            android:layout_width="250dp"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:layout_marginLeft="10dp"
+            android:textColor="@android:color/white"
+            android:textColorHint="@android:color/white"
+            android:fontFamily="cursive"
+            android:textSize="30dp"
+            android:hint="Enter mobile number"/>
+    </LinearLayout>
+
 
     <Button
         android:id="@+id/register"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/mobileno"
+        android:layout_below="@+id/ll_mobileContainer"
         android:textAllCaps="false"
         android:layout_marginTop="20dp"
-        android:textSize="20dp"
+        android:fontFamily="cursive"
+        android:textSize="30dp"
+        android:paddingLeft="15dp"
+        android:paddingRight="15dp"
         android:background="@drawable/button_border"
         android:padding="10dp"
+        android:textColor="@android:color/white"
         android:layout_centerHorizontal="true"
         android:text="Register"/>
 

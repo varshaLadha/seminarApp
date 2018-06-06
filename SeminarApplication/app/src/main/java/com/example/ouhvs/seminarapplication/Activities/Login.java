@@ -4,7 +4,10 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -20,6 +23,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.ouhvs.seminarapplication.FCM.Constants;
 import com.example.ouhvs.seminarapplication.FCM.NotificationUtils;
 import com.example.ouhvs.seminarapplication.ModalClass.UserData;
 import com.example.ouhvs.seminarapplication.R;
@@ -36,6 +40,7 @@ public class Login extends AppCompatActivity {
     EditText mobileno,password;
     Button login;
     private BroadcastReceiver mRegistrationBroadcastReceiver;
+    ActionBar ab;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,12 +52,7 @@ public class Login extends AppCompatActivity {
             @Override
             public void onReceive(Context context, Intent intent) {
 
-                if (intent.getAction().equals("registrationComplete")) {
-                    FirebaseMessaging.getInstance().subscribeToTopic("global");
-
-//                    displayFirebaseRegId();
-
-                } else if (intent.getAction().equals("pushNotification")) {
+                if (intent.getAction().equals("pushNotification")) {
                     // new push notification is received
 
                     Bundle extras = intent.getExtras();
@@ -60,21 +60,29 @@ public class Login extends AppCompatActivity {
                         String str = extras.getString("foreground");
 
                         if (str != null) {
-                            Toast.makeText(getApplicationContext(), "Push notification: " + intent.getStringExtra("message"), Toast.LENGTH_LONG).show();
+                            Constants.message = intent.getStringExtra("message");
+                            Constants.title=intent.getStringExtra("title");
+                            Toast.makeText(getApplicationContext(), Constants.title, Toast.LENGTH_LONG).show();
                         }
                     } else {
 
-                        String message = intent.getStringExtra("message");
+                        Constants.message = intent.getStringExtra("message");
+                        Constants.title=intent.getStringExtra("title");
 
-                        Toast.makeText(getApplicationContext(), "Push notification: " + message, Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(), Constants.title, Toast.LENGTH_LONG).show();
                     }
+
                 }
             }
         };
         login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                loginUser();
+                if(isConnectingToInternet()) {
+                    loginUser();
+                }else {
+                    Toast.makeText(Login.this, "There's no internet connection. Please turn on internet.", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
@@ -83,6 +91,9 @@ public class Login extends AppCompatActivity {
         mobileno=(EditText)findViewById(R.id.mobileno);
         password=(EditText)findViewById(R.id.password);
         login=(Button)findViewById(R.id.login);
+
+        ab=getSupportActionBar();
+        ab.setTitle("Login");
     }
 
     public void loginUser()
@@ -106,6 +117,7 @@ public class Login extends AppCompatActivity {
                             GlobalClass.editor.putString("userDetail",object);
                             GlobalClass.editor.commit();
                             Intent intent=new Intent(Login.this,Home.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                             startActivity(intent);
                             finish();
                         }else {
@@ -149,5 +161,15 @@ public class Login extends AppCompatActivity {
     protected void onPause() {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mRegistrationBroadcastReceiver);
         super.onPause();
+    }
+
+    private boolean isConnectingToInternet() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager
+                .getActiveNetworkInfo();
+        if (networkInfo != null && networkInfo.isConnected())
+            return true;
+        else
+            return false;
     }
 }

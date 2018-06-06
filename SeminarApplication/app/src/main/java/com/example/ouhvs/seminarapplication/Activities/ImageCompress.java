@@ -1,7 +1,11 @@
 package com.example.ouhvs.seminarapplication.Activities;
 
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.support.v7.app.ActionBar;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -12,7 +16,6 @@ import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -57,6 +60,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -78,6 +82,9 @@ public class ImageCompress extends BaseClass {
     private SimpleDateFormat dateFormatter;
     public static final String IMAGE_DIRECTORY = "ImageScalling";
     private BroadcastReceiver mRegistrationBroadcastReceiver;
+    ActionBar ab;
+
+    int dataSize;
 
     AmazonS3 s3;
     TransferUtility transferUtility;
@@ -141,6 +148,9 @@ public class ImageCompress extends BaseClass {
         ivCompressImageContainer=(ImageView)findViewById(R.id.iv_compressImageContainer);
         contacts=(RecyclerView)findViewById(R.id.recyclerView);
 
+        ab=getSupportActionBar();
+        ab.setTitle("Share Image");
+
         file1=new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getAbsolutePath()+"/camera");
         file = new File(Environment.getExternalStorageDirectory()
                 + "/" + IMAGE_DIRECTORY);
@@ -178,16 +188,74 @@ public class ImageCompress extends BaseClass {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
+        String scheme;
+        dataSize=0;
+
         if (resultCode == Activity.RESULT_OK) {
             switch (requestCode) {
                 case PICK_GALLERY_IMAGE:
                     Uri uriPhoto = data.getData();
+
                     ivImageContainer.setImageURI(uriPhoto);
+
+                    scheme=uriPhoto.getScheme();
+
+                    if(scheme.equals(ContentResolver.SCHEME_CONTENT))
+                    {
+                        try {
+                            InputStream fileInputStream=getApplicationContext().getContentResolver().openInputStream(uriPhoto);
+                            dataSize = fileInputStream.available()/1024;
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        Log.e("ImageCompress", "onActivityResult: "+dataSize/1024);
+                        System.out.println("File size in bytes"+dataSize/1024);
+
+                    }
+                    else if(scheme.equals(ContentResolver.SCHEME_FILE))
+                    {
+                        String path = uriPhoto.getPath();
+                        try {
+                            File f = new File(path);
+                            Log.e( "onActivityResult: ",f.length()/1024+"");
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+
                     destFile = new File(getPathFromGooglePhotosUri(uriPhoto));
                     btUpload.setVisibility(View.VISIBLE);
                     break;
                 case PICK_CAMERA_IMAGE:
                     ivImageContainer.setImageURI(imageCaptureUri);
+
+                    scheme=imageCaptureUri.getScheme();
+
+                    if(scheme.equals(ContentResolver.SCHEME_CONTENT))
+                    {
+                        try {
+                            InputStream fileInputStream=getApplicationContext().getContentResolver().openInputStream(imageCaptureUri);
+                            dataSize = fileInputStream.available()/1024;
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        Log.e("ImageCompress", "onActivityResult: "+dataSize/1024);
+                        System.out.println("File size in bytes"+dataSize/1024);
+
+                    }
+                    else if(scheme.equals(ContentResolver.SCHEME_FILE))
+                    {
+                        String path = imageCaptureUri.getPath();
+                        try {
+                            File f = new File(path);
+                            //Toast.makeText(this, ""+f.length()/1024, Toast.LENGTH_SHORT).show();
+                            dataSize=(int)f.length()/1024;
+                            Log.e( "onActivityResult: ","onActivityResult"+f.length()/1024+"");
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+
                     btUpload.setVisibility(View.VISIBLE);
                     break;
             }
@@ -240,12 +308,15 @@ public class ImageCompress extends BaseClass {
     }
 
     public void imageCompress(){
-        Bitmap bmp = decodeFile(destFile);
-        ivCompressImageContainer.setImageBitmap(bmp);
+        if(isConnectingToInternet()) {
+            Bitmap bmp = decodeFile(destFile);
+            ivCompressImageContainer.setImageBitmap(bmp);
 
-        setFileToUpload(ivCompressImageContainer);
-
-        displayData();
+            setFileToUpload(ivCompressImageContainer);
+        }else {
+            Toast.makeText(this, "There's no internet connection. Please turn on internet. ", Toast.LENGTH_SHORT).show();
+        }
+        //displayData();
 
     }
 
@@ -314,6 +385,10 @@ public class ImageCompress extends BaseClass {
             //Toast.makeText(this, "Hello", Toast.LENGTH_SHORT).show();
             scale = (int) Math.pow(2, (int) Math.ceil(Math.log(IMAGE_MAX_SIZE /
                     (double) Math.max(o.outHeight, o.outWidth)) / Math.log(0.5)));
+        }
+
+        if(dataSize>=30 && dataSize<=800){
+            scale=4;
         }
 
         Log.i("Scale value",scale+"");
@@ -385,6 +460,10 @@ public class ImageCompress extends BaseClass {
             public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
                 int percentage = (int) (bytesCurrent/bytesTotal * 100);
                 Log.e("percentage",percentage +"");
+                if(percentage==100){
+                    Toast.makeText(ImageCompress.this, "File uploaded successfully", Toast.LENGTH_SHORT).show();
+                    displayData();
+                }
             }
 
             @Override
@@ -422,5 +501,15 @@ public class ImageCompress extends BaseClass {
     protected void onPause() {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mRegistrationBroadcastReceiver);
         super.onPause();
+    }
+
+    private boolean isConnectingToInternet() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager
+                .getActiveNetworkInfo();
+        if (networkInfo != null && networkInfo.isConnected())
+            return true;
+        else
+            return false;
     }
 }

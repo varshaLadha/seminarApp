@@ -4,17 +4,36 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/image"
     tools:context="com.example.ouhvs.seminarapplication.Activities.MainActivity">
+
+    <TextView
+        android:id="@+id/tv_greeting"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:gravity="center"
+        android:layout_marginRight="20dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="70dp"
+        android:background="@android:color/white"
+        android:textColor="@android:color/holo_purple"
+        android:textSize="35sp"
+        android:fontFamily="cursive"
+        android:text="Register/Login with Share Image Application and easily share images with your friends"/>
 
     <Button
         android:id="@+id/register"
         android:layout_width="100dp"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="100dp"
-        android:textSize="20sp"
+        android:layout_marginTop="20dp"
+        android:textSize="30sp"
+        android:layout_below="@+id/tv_greeting"
         android:text="Regsiter"
         android:textAllCaps="false"
+        android:fontFamily="cursive"
+        android:textColor="@android:color/white"
         android:background="@drawable/button_border"/>
 
     <Button
@@ -23,10 +42,12 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_below="@+id/register"
-        android:textSize="20sp"
+        android:textSize="30sp"
         android:textAllCaps="false"
         android:layout_marginTop="20dp"
         android:text="Login"
+        android:fontFamily="cursive"
+        android:textColor="@android:color/white"
         android:background="@drawable/button_border"
         />
 

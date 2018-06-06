@@ -1,6 +1,9 @@
 package com.example.ouhvs.seminarapplication.ModalClass;
 
+import android.app.Activity;
 import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -54,41 +57,52 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
     public void onBindViewHolder(final MyViewHolder holder, final int position) {
 
         holder.name.setText(userData.get(position).getName());
+        holder.name.setTypeface(holder.name.getTypeface());
         holder.contactNo.setText(userData.get(position).getMobileno());
+        holder.contactNo.setTypeface(holder.contactNo.getTypeface());
 
         holder.send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (isConnectingToInternet()) {
 
-                StringRequest sr=new StringRequest(Request.Method.POST, "https://lanetteamvarsha.000webhostapp.com/firebaseApi/index1.php", new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        try {
-                            JSONObject jsonObject=new JSONObject(response);
-                            Toast.makeText(context, jsonObject.toString(), Toast.LENGTH_SHORT).show();
-                        } catch (JSONException e) {
-                            Toast.makeText(context, "exception "+e.getMessage(), Toast.LENGTH_SHORT).show();
-                            e.printStackTrace();
+                    StringRequest sr = new StringRequest(Request.Method.POST, "https://lanetteamvarsha.000webhostapp.com/firebaseApi/index1.php", new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+                            try {
+                                JSONObject jsonObject = new JSONObject(response);
+                                if (jsonObject.getInt("success") == 1) {
+                                    Toast.makeText(context, "Image sent to " + userData.get(position).getName() + " successfully", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    Toast.makeText(context, "Could'nt send image ", Toast.LENGTH_SHORT).show();
+                                }
+                                Log.e("onResponse: ", jsonObject.toString());
+                            } catch (JSONException e) {
+                                Toast.makeText(context, "exception " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                e.printStackTrace();
+                            }
                         }
-                    }
-                }, new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Log.d("onErrorResponse: ","Problem sending notification "+error.getMessage());
-                    }
-                }){
-                    @Override
-                    protected Map<String, String> getParams() throws AuthFailureError {
-                        Map<String,String> params=new HashMap<String, String>();
-                        params.put("title",senderName+" sent you an image.");
-                        params.put("message", Constants.S3_URL+ImageCompress.destFile.getName());
-                        params.put("regId",userData.get(position).getFcmId());
-                        return params;
-                    }
-                };
+                    }, new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            Log.d("onErrorResponse: ", "Problem sending notification " + error.getMessage());
+                        }
+                    }) {
+                        @Override
+                        protected Map<String, String> getParams() throws AuthFailureError {
+                            Map<String, String> params = new HashMap<String, String>();
+                            params.put("title", senderName + " sent you an image.");
+                            params.put("message", Constants.S3_URL + ImageCompress.destFile.getName());
+                            params.put("regId", userData.get(position).getFcmId());
+                            return params;
+                        }
+                    };
 
-                RequestQueue rq= Volley.newRequestQueue(context);
-                rq.add(sr);
+                    RequestQueue rq = Volley.newRequestQueue(context);
+                    rq.add(sr);
+                }else {
+                    Toast.makeText(context, "There's no internet connection. Please turn on internet. ", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
@@ -111,4 +125,15 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
             send=itemView.findViewById(R.id.btnSend);
         }
     }
+
+    private boolean isConnectingToInternet() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager
+                .getActiveNetworkInfo();
+        if (networkInfo != null && networkInfo.isConnected())
+            return true;
+        else
+            return false;
+    }
+
 }
