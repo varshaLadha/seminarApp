@@ -24,7 +24,6 @@
             android:id="@+id/userName"
             android:layout_width="250dp"
             android:layout_height="wrap_content"
-            android:inputType="textCapCharacters"
             android:textColor="@android:color/white"
             android:textColorHint="@android:color/white"
             android:layout_marginLeft="10dp"
@@ -104,5 +103,17 @@
         android:textColor="@android:color/white"
         android:layout_centerHorizontal="true"
         android:text="Register"/>
+
+    <TextView
+        android:id="@+id/tvLogin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/register"
+        android:layout_centerHorizontal="true"
+        android:textColor="@android:color/white"
+        android:layout_marginTop="30dp"
+        android:textSize="25dp"
+        android:text="Have an account. Login Now"
+        android:fontFamily="cursive"/>
 
 </RelativeLayout>

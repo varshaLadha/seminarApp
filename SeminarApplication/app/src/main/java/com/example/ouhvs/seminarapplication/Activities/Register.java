@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Paint;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.v4.content.LocalBroadcastManager;
@@ -14,6 +15,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
@@ -29,6 +31,7 @@ import com.example.ouhvs.seminarapplication.R;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -44,6 +47,7 @@ public class Register extends AppCompatActivity {
     Button register;
     private BroadcastReceiver mRegistrationBroadcastReceiver;
     ActionBar ab;
+    TextView tvLogin;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +58,19 @@ public class Register extends AppCompatActivity {
         passwd=(EditText)findViewById(R.id.password);
         mno=(EditText)findViewById(R.id.mobileno);
         register=(Button)findViewById(R.id.register);
+        tvLogin=(TextView)findViewById(R.id.tvLogin);
+
+        tvLogin.setPaintFlags(Paint.UNDERLINE_TEXT_FLAG);
+
+        tvLogin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent=new Intent(Register.this,Login.class);
+                startActivity(intent);
+                finish();
+            }
+        });
+
         ab=getSupportActionBar();
         ab.setTitle("Register");
 

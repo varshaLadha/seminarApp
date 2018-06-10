@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Paint;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.v4.content.LocalBroadcastManager;
@@ -14,6 +15,7 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
@@ -41,6 +43,7 @@ public class Login extends AppCompatActivity {
     Button login;
     private BroadcastReceiver mRegistrationBroadcastReceiver;
     ActionBar ab;
+    TextView tvRegister;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,6 +78,7 @@ public class Login extends AppCompatActivity {
                 }
             }
         };
+
         login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -91,6 +95,18 @@ public class Login extends AppCompatActivity {
         mobileno=(EditText)findViewById(R.id.mobileno);
         password=(EditText)findViewById(R.id.password);
         login=(Button)findViewById(R.id.login);
+        tvRegister=(TextView)findViewById(R.id.tvRegister);
+
+        tvRegister.setPaintFlags(Paint.UNDERLINE_TEXT_FLAG);
+
+        tvRegister.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent=new Intent(Login.this,Register.class);
+                startActivity(intent);
+                finish();
+            }
+        });
 
         ab=getSupportActionBar();
         ab.setTitle("Login");

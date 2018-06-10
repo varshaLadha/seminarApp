@@ -20,12 +20,13 @@
         android:layout_marginTop="20dp"
         android:fontFamily="cursive"
         android:textColor="@android:color/white"
-        android:textSize="30sp"/>
+        android:textSize="35sp"/>
 
     <ImageView
         android:id="@+id/ivReceivedImage"
         android:layout_width="match_parent"
         android:layout_height="300dp"
+        android:layout_marginTop="20dp"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
         android:layout_below="@+id/tv_greeting"
@@ -39,7 +40,7 @@
         android:layout_centerHorizontal="true"
         android:layout_below="@id/ivReceivedImage"
         android:layout_marginTop="20dp"
-        android:textSize="25sp"
+        android:textSize="30sp"
         android:fontFamily="cursive"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
