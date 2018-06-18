@@ -86,6 +86,16 @@
         android:layout_centerHorizontal="true"
         android:visibility="gone"/>
 
+    <ProgressBar
+        android:id="@+id/pbLoader"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="350dp"
+        android:visibility="gone"
+        android:indeterminateTint="@android:color/black"/>
+
+
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"

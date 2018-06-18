@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,6 +29,7 @@ import com.example.ouhvs.seminarapplication.ModalClass.UserData;
 import com.example.ouhvs.seminarapplication.R;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.gson.Gson;
+import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
@@ -58,6 +60,7 @@ public class Home extends BaseClass {
     ActionBar ab;
     public File downloadFile,dfile;
     Button btDownload;
+    public ProgressBar progressBar;
 
     SimpleDateFormat dateFormatter;
 
@@ -77,6 +80,7 @@ public class Home extends BaseClass {
 
             if(Constants.title!=null && Constants.message!=null)
             {
+                progressBar.setVisibility(View.VISIBLE);
                 setData();
             }
 
@@ -94,12 +98,14 @@ public class Home extends BaseClass {
 
                                 Constants.title=intent.getStringExtra("title");
                                 Constants.message=intent.getStringExtra("message");
+                                progressBar.setVisibility(View.VISIBLE);
                                 setData();
                             }
                         } else {
 
                             Constants.title=intent.getStringExtra("title");
                             Constants.message = intent.getStringExtra("message");
+                            progressBar.setVisibility(View.VISIBLE);
                             setData();
                         }
                     }
@@ -115,11 +121,12 @@ public class Home extends BaseClass {
         ivReceivedImage=(ImageView)findViewById(R.id.ivReceivedImage);
         tvMessage=(TextView)findViewById(R.id.tv_message);
         btDownload=findViewById(R.id.bt_download);
-        downloadFile=new File(Environment.getExternalStorageDirectory() + "/ShareImages");
+        //downloadFile=new File(Environment.getExternalStorageDirectory() + "/ShareImages");
+        progressBar=(ProgressBar)findViewById(R.id.pbLoader);
 
-        if(!downloadFile.exists()){
+        /*if(!downloadFile.exists()){
             downloadFile.mkdirs();
-        }
+        }*/
 
         ab=getSupportActionBar();
         ab.setTitle("Home");
@@ -145,7 +152,7 @@ public class Home extends BaseClass {
 
             if (!userData.getFcmId().equals(firebaseId)) {
 
-                StringRequest sr=new StringRequest(Request.Method.POST, "https://lanetteamvarsha.000webhostapp.com/seminarApi/fcmIdUpdate.php", new Response.Listener<String>() {
+                StringRequest sr=new StringRequest(Request.Method.POST, "http://lanetteamvarsha.000webhostapp.com/seminarApi/fcmIdUpdate.php", new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
                         try {
@@ -214,7 +221,20 @@ public class Home extends BaseClass {
     {
         Picasso.with(Home.this)
                 .load(Constants.message)
-                .into(ivReceivedImage);
+                .into(ivReceivedImage, new Callback() {
+                    @Override
+                    public void onSuccess() {
+                        if(progressBar!=null){
+                            progressBar.setVisibility(View.GONE);
+                        }
+                    }
+
+                    @Override
+                    public void onError() {
+
+                    }
+                });
+
         ivReceivedImage.setVisibility(View.VISIBLE);
 
         tvMessage.setText(Constants.title);
@@ -234,7 +254,7 @@ public class Home extends BaseClass {
 
     public void setFileToDownload(){
         try {
-            URL url=new URL("https://s3.amazonaws.com/varsha123/img_20180520_170852.png");
+            URL url=new URL("http://s3.amazonaws.com/varsha123/img_20180520_170852.png");
             InputStream input=url.openStream();
             try{
                 OutputStream output=new FileOutputStream(downloadFile);

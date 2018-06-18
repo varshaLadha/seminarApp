@@ -66,7 +66,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
             public void onClick(View view) {
                 if (isConnectingToInternet()) {
 
-                    StringRequest sr = new StringRequest(Request.Method.POST, "https://lanetteamvarsha.000webhostapp.com/firebaseApi/index1.php", new Response.Listener<String>() {
+                    StringRequest sr = new StringRequest(Request.Method.POST, "http://lanetteamvarsha.000webhostapp.com/firebaseApi/index1.php", new Response.Listener<String>() {
                         @Override
                         public void onResponse(String response) {
                             try {

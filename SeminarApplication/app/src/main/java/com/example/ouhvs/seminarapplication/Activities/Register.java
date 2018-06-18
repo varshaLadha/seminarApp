@@ -121,7 +121,7 @@ public class Register extends AppCompatActivity {
         password=passwd.getText().toString().trim();
         mobileno=mno.getText().toString().trim();
 
-        StringRequest sr=new StringRequest(Request.Method.POST, "https://lanetteamvarsha.000webhostapp.com/seminarApi/register.php", new Response.Listener<String>() {
+        StringRequest sr=new StringRequest(Request.Method.POST, "http://lanetteamvarsha.000webhostapp.com/seminarApi/register.php", new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 try {

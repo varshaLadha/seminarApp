@@ -121,7 +121,7 @@ public class Login extends AppCompatActivity {
         if(TextUtils.isEmpty(mno) || TextUtils.isEmpty(pwd)){
             Toast.makeText(this, "Please enter the detail", Toast.LENGTH_SHORT).show();
         }else {
-            StringRequest sr=new StringRequest(Request.Method.POST, "https://lanetteamvarsha.000webhostapp.com/seminarApi/login.php", new Response.Listener<String>() {
+            StringRequest sr=new StringRequest(Request.Method.POST, "http://lanetteamvarsha.000webhostapp.com/seminarApi/login.php", new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
                     try {

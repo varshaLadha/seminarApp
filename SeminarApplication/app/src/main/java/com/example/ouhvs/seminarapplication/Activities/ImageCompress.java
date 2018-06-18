@@ -23,6 +23,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
@@ -83,6 +84,7 @@ public class ImageCompress extends BaseClass {
     public static final String IMAGE_DIRECTORY = "ImageScalling";
     private BroadcastReceiver mRegistrationBroadcastReceiver;
     ActionBar ab;
+    ProgressBar progressBar;
 
     int dataSize;
 
@@ -147,6 +149,7 @@ public class ImageCompress extends BaseClass {
         ivImageContainer=(ImageView)findViewById(R.id.iv_imageContainer);
         ivCompressImageContainer=(ImageView)findViewById(R.id.iv_compressImageContainer);
         contacts=(RecyclerView)findViewById(R.id.recyclerView);
+        progressBar=(ProgressBar)findViewById(R.id.pbLoader);
 
         ab=getSupportActionBar();
         ab.setTitle("Share Image");
@@ -312,18 +315,18 @@ public class ImageCompress extends BaseClass {
             Bitmap bmp = decodeFile(destFile);
             ivCompressImageContainer.setImageBitmap(bmp);
 
+            progressBar.setVisibility(View.VISIBLE);
+            contacts.setVisibility(View.GONE);
+            //userData=null;
             setFileToUpload(ivCompressImageContainer);
         }else {
             Toast.makeText(this, "There's no internet connection. Please turn on internet. ", Toast.LENGTH_SHORT).show();
         }
-        //displayData();
-
     }
 
     public void displayData(){
-
         final ArrayList<UserData> userData=new ArrayList<UserData>();
-        StringRequest sr=new StringRequest(Request.Method.GET, "https://lanetteamvarsha.000webhostapp.com/seminarApi/getData.php", new Response.Listener<String>() {
+        StringRequest sr=new StringRequest(Request.Method.GET, "http://lanetteamvarsha.000webhostapp.com/seminarApi/getData.php", new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 try {
@@ -342,6 +345,8 @@ public class ImageCompress extends BaseClass {
                         RecyclerView.LayoutManager layoutManager=new LinearLayoutManager(getApplicationContext());
                         contacts.setLayoutManager(layoutManager);
                         contacts.setAdapter(adapter);
+                        progressBar.setVisibility(View.GONE);
+                        contacts.setVisibility(View.VISIBLE);
                     }else {
                         Toast.makeText(ImageCompress.this, jsonObject.getString("message"), Toast.LENGTH_SHORT).show();
                     }
